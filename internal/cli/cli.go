@@ -26,6 +26,8 @@ func Main() {
 		exit(runUninstall())
 	case "upgrade":
 		exit(runUpgrade())
+	case "version", "-v", "--version":
+		fmt.Println("usagely", version())
 	case "-h", "--help", "help":
 		fmt.Print(usage())
 	default:

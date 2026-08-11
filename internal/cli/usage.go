@@ -10,6 +10,7 @@ func usage() string {
 		"  " + cyan("install    ") + " add autostart and the Claude Code status line hook\n" +
 		"  " + cyan("uninstall  ") + " undo install, restoring your own status line\n" +
 		"  " + cyan("upgrade    ") + " fetch and build the latest release (needs Go)\n" +
+		"  " + cyan("version    ") + " print the version this binary was built from\n" +
 		"  " + cyan("hook       ") + " capture usage from status line JSON on stdin\n" +
 		"              " + faint("--wrap CMD   run CMD with the same payload afterwards") + "\n\n" +
 		faint(`Claude Code runs "usagely hook" as your status line. It writes the rate limits
