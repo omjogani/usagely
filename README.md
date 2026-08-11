@@ -1,2 +1,71 @@
 # Usagely
-AI Usage tracker for Linux (gnome)
+
+Claude Code usage limits in your Linux system tray.
+
+A ring gauge in the panel shows whichever limit you're closest to hitting.
+Click it for the detail:
+
+```
+Claude Code
+─────────────────────────────────────────────
+5-Hour   ███████░░░   71%   resets in 1h 53m
+7-Day    █░░░░░░░░░   10%   resets in 6d 9h
+─────────────────────────────────────────────
+Updated 11:06
+Quit
+```
+
+## No credentials, no network
+
+Usagely never reads your Claude credentials and never makes an API call.
+
+Claude Code passes `rate_limits` to whatever command you configure as its
+[status line](https://code.claude.com/docs/en/statusline). `usagely hook` sits
+in that slot, writes the numbers to `~/.cache/usagely.json`, and passes stdin
+straight through to the status line you already had. The tray reads that file.
+
+```
+statusline hook  →  ~/.cache/usagely.json  →  tray
+```
+
+This matters: Anthropic's OAuth refresh tokens are single-use and rotating, so
+tools that read `~/.claude/.credentials.json` and refresh it can log you out of
+Claude Code. Usagely can't, because it never touches them.
+
+## Install
+
+```sh
+go build -o ~/.local/bin/usagely ./cmd/usagely
+usagely install     # autostart entry + status line hook (backs up settings.json)
+usagely &
+```
+
+`usagely uninstall` reverses both, restoring your original status line.
+
+Requires a Claude Pro or Max subscription — `rate_limits` is absent otherwise,
+and the tray will say so rather than showing a made-up zero.
+
+## Layout
+
+```
+cmd/usagely/      CLI: subcommand dispatch, the hook, install/uninstall
+internal/claude/  Claude Code's contract — payload parsing, cache, settings.json
+internal/tray/    StatusNotifierItem indicator, D-Bus menu, ring gauge icon
+```
+
+`tray` depends on `claude`; `claude` depends on nothing of ours.
+
+## Desktop support
+
+The tray uses [StatusNotifierItem](https://www.freedesktop.org/wiki/Specifications/StatusNotifierItem/)
+over D-Bus, so it works on KDE, XFCE, Cinnamon, Budgie, COSMIC and most Wayland
+bars with no extra libraries. GNOME has no tray of its own and needs the
+[AppIndicator extension](https://extensions.gnome.org/extension/615/appindicator-support/)
+— Ubuntu and Pop!_OS ship it enabled already.
+
+## Limits
+
+- Only counts usage from this machine. claude.ai in a browser won't show up.
+- Percentages refresh while Claude Code is running. Between sessions the
+  countdown keeps ticking and each window reads zero once it resets.
+- No per-model rows. The status line reports `five_hour` and `seven_day` only.
