@@ -35,7 +35,7 @@ Claude Code. Usagely can't, because it never touches them.
 ## Install
 
 ```sh
-go build -o ~/.local/bin/usagely .
+go build -o ~/.local/bin/usagely ./cmd/usagely
 usagely install     # autostart entry + status line hook (backs up settings.json)
 usagely &
 ```
@@ -44,6 +44,16 @@ usagely &
 
 Requires a Claude Pro or Max subscription — `rate_limits` is absent otherwise,
 and the tray will say so rather than showing a made-up zero.
+
+## Layout
+
+```
+cmd/usagely/      CLI: subcommand dispatch, the hook, install/uninstall
+internal/claude/  Claude Code's contract — payload parsing, cache, settings.json
+internal/tray/    StatusNotifierItem indicator, D-Bus menu, ring gauge icon
+```
+
+`tray` depends on `claude`; `claude` depends on nothing of ours.
 
 ## Desktop support
 
