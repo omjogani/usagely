@@ -1,4 +1,4 @@
-package main
+package cli
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/omjogani/usagely/internal/tray"
 )
 
-func main() {
+func Main() {
 	command := ""
 	if len(os.Args) > 1 {
 		command = os.Args[1]
@@ -24,6 +24,10 @@ func main() {
 		exit(runInstall())
 	case "uninstall":
 		exit(runUninstall())
+	case "upgrade":
+		exit(runUpgrade())
+	case "version", "-v", "--version":
+		fmt.Println("usagely", version())
 	case "-h", "--help", "help":
 		fmt.Print(usage())
 	default:
