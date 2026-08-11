@@ -47,7 +47,7 @@ and the tray will say so rather than showing a made-up zero.
 No clone, no source tree - Go fetches and builds it for you:
 
 ```sh
-go install github.com/omjogani/usagely/cmd/usagely@latest
+go install github.com/omjogani/usagely@latest
 usagely install     # autostart entry + status line hook (backs up settings.json)
 usagely &
 ```
@@ -62,12 +62,22 @@ For hacking on it, or if you would rather read the code before running it:
 ```sh
 git clone https://github.com/omjogani/Usagely
 cd Usagely
-go build -o ~/.local/bin/usagely ./cmd/usagely
+go build -o ~/.local/bin/usagely .
 usagely install
 usagely &
 ```
 
 `usagely uninstall` reverses both, restoring your original status line.
+
+### Upgrade
+
+```sh
+usagely upgrade     # re-runs go install ...@latest, then restart the tray
+```
+
+It needs the Go toolchain, same as installing did. If you built from source into
+a different directory, it will tell you the upgraded binary is not the one on
+your `PATH`.
 
 ## Debug - when the numbers look wrong
 

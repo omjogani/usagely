@@ -1,4 +1,4 @@
-package main
+package cli
 
 import (
 	"fmt"
@@ -7,7 +7,8 @@ import (
 	"github.com/omjogani/usagely/internal/tray"
 )
 
-func main() {
+// Main dispatches os.Args and is the whole of the binary at the repo root.
+func Main() {
 	command := ""
 	if len(os.Args) > 1 {
 		command = os.Args[1]
@@ -24,6 +25,8 @@ func main() {
 		exit(runInstall())
 	case "uninstall":
 		exit(runUninstall())
+	case "upgrade":
+		exit(runUpgrade())
 	case "-h", "--help", "help":
 		fmt.Print(usage())
 	default:

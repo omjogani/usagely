@@ -1,4 +1,4 @@
-package main
+package cli
 
 func usage() string {
 	return bold("Usagely") + " - Claude Code usage limits in your system tray\n\n" +
@@ -9,6 +9,7 @@ func usage() string {
 		"  " + cyan("status     ") + " print what the tray is showing right now\n" +
 		"  " + cyan("install    ") + " add autostart and the Claude Code status line hook\n" +
 		"  " + cyan("uninstall  ") + " undo install, restoring your own status line\n" +
+		"  " + cyan("upgrade    ") + " fetch and build the latest release (needs Go)\n" +
 		"  " + cyan("hook       ") + " capture usage from status line JSON on stdin\n" +
 		"              " + faint("--wrap CMD   run CMD with the same payload afterwards") + "\n\n" +
 		faint(`Claude Code runs "usagely hook" as your status line. It writes the rate limits
