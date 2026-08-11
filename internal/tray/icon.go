@@ -11,7 +11,10 @@ import (
 // noData is the percentage passed to ringIcon when there is nothing to show.
 const noData = -1.0
 
-// Thresholds at which the gauge changes colour.
+// Thresholds at which the gauge and the header dot change colour: green with
+// room to spare, orange as the limit comes into view, red when it is about to
+// bite. Red deliberately arrives before 100% — a warning that only fires once
+// the limit is already spent tells you nothing you have not just been told.
 const (
 	warnAt     = 70.0
 	criticalAt = 90.0
@@ -25,7 +28,7 @@ var (
 	colourCritical = color.RGBA{R: 0xE5, G: 0x48, B: 0x3C, A: 0xFF}
 )
 
-// ringIcon draws a donut gauge as a PNG.
+// ringIcon draws the panel gauge as a PNG.
 //
 // A ring rather than rendered text: it needs no font, stays legible at the
 // ~22px a panel actually shows, and carries urgency in its colour. The exact
@@ -66,6 +69,33 @@ func ringIcon(pct float64) []byte {
 		}
 	}
 
+	return encodePNG(img)
+}
+
+// dotIcon draws the header row's status dot in the same colour as the panel
+// ring, so the menu says what the ring in the panel means.
+func dotIcon(pct float64) []byte {
+	const (
+		size   = 64
+		radius = 22.0
+	)
+
+	img := image.NewRGBA(image.Rect(0, 0, size, size))
+	centre := float64(size)/2 - 0.5
+	fill := levelColour(pct)
+
+	for y := range size {
+		for x := range size {
+			if math.Hypot(float64(x)-centre, float64(y)-centre) <= radius {
+				img.SetRGBA(x, y, fill)
+			}
+		}
+	}
+
+	return encodePNG(img)
+}
+
+func encodePNG(img image.Image) []byte {
 	var buf bytes.Buffer
 	if err := png.Encode(&buf, img); err != nil {
 		return nil

@@ -109,7 +109,9 @@ func runStatus() error {
 	now := time.Now()
 	rows, panel := tray.Render(snapshot, now)
 	for _, row := range rows {
-		fmt.Println(row)
+		if row != "" {
+			fmt.Println(row)
+		}
 	}
 	if panel > 0 {
 		fmt.Printf("\npanel shows   %.0f%%\n", panel)
