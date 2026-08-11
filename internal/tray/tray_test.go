@@ -144,9 +144,9 @@ func TestLevelColour(t *testing.T) {
 		noData:         colourUnknown,
 		0:              colourOK,
 		69.9:           colourOK,
-		warnAt:         colourWarn,
-		criticalAt - 1: colourWarn,
-		criticalAt:     colourCritical,
+		WarnAt:         colourWarn,
+		CriticalAt - 1: colourWarn,
+		CriticalAt:     colourCritical,
 		100:            colourCritical,
 	}
 	for pct, want := range cases {
