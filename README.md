@@ -2,9 +2,6 @@
 
 Claude Code usage limits in your Linux system tray.
 
-A ring gauge in the panel shows whichever limit you're closest to hitting.
-Click it for the detail:
-
 ```
 Claude Code
 ─────────────────────────────────────────────
@@ -32,20 +29,47 @@ This matters: Anthropic's OAuth refresh tokens are single-use and rotating, so
 tools that read `~/.claude/.credentials.json` and refresh it can log you out of
 Claude Code. Usagely can't, because it never touches them.
 
+```mermaid
+flowchart LR
+    CC["Claude Code"] -- "JSON on stdin<br/>(rate_limits)" --> H["usagely hook"]
+    H -- "same bytes, unchanged" --> SL["your own<br/>status line"]
+    H -- "writes" --> C[("~/.cache/usagely.json")]
+    C -- "read every 10s" --> T["tray indicator"]
+```
+
 ## Install
 
+Requires a Claude Pro or Max subscription - `rate_limits` is absent otherwise,
+and the tray will say so rather than showing a made-up zero.
+
+### Install the released binary
+
+No clone, no source tree - Go fetches and builds it for you:
+
 ```sh
-go build -o ~/.local/bin/usagely ./cmd/usagely
+go install github.com/omjogani/usagely/cmd/usagely@latest
 usagely install     # autostart entry + status line hook (backs up settings.json)
+usagely &
+```
+
+`go install` puts the binary in `$(go env GOPATH)/bin`, so make sure that is on
+your `PATH`.
+
+### Build from source
+
+For hacking on it, or if you would rather read the code before running it:
+
+```sh
+git clone https://github.com/omjogani/Usagely
+cd Usagely
+go build -o ~/.local/bin/usagely ./cmd/usagely
+usagely install
 usagely &
 ```
 
 `usagely uninstall` reverses both, restoring your original status line.
 
-Requires a Claude Pro or Max subscription — `rate_limits` is absent otherwise,
-and the tray will say so rather than showing a made-up zero.
-
-## When the numbers look wrong
+## Debug - when the numbers look wrong
 
 `usagely status` prints what the tray is showing and when it was captured. To
 compare that against what Claude Code actually sent, keep a copy of the raw
@@ -58,23 +82,13 @@ rm ~/.cache/usagely.json.debug       # to stop
 
 The flag file is checked on every status line refresh, so no restart is needed.
 
-## Layout
-
-```
-cmd/usagely/      CLI: subcommand dispatch, the hook, install/uninstall
-internal/claude/  Claude Code's contract — payload parsing, cache, settings.json
-internal/tray/    StatusNotifierItem indicator, D-Bus menu, ring gauge icon
-```
-
-`tray` depends on `claude`; `claude` depends on nothing of ours.
-
 ## Desktop support
 
 The tray uses [StatusNotifierItem](https://www.freedesktop.org/wiki/Specifications/StatusNotifierItem/)
 over D-Bus, so it works on KDE, XFCE, Cinnamon, Budgie, COSMIC and most Wayland
 bars with no extra libraries. GNOME has no tray of its own and needs the
-[AppIndicator extension](https://extensions.gnome.org/extension/615/appindicator-support/)
-— Ubuntu and Pop!_OS ship it enabled already.
+[AppIndicator extension](https://extensions.gnome.org/extension/615/appindicator-support/).
+Ubuntu and Pop!_OS ship it enabled already.
 
 ## Limits
 

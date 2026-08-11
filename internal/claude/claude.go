@@ -32,7 +32,7 @@ type Snapshot struct {
 // Live reports a window's state as of now.
 //
 // Each window has a fixed end rather than rolling, so once ResetsAt has passed
-// the correct reading is zero — holding the stale percentage would over-report
+// the correct reading is zero - holding the stale percentage would over-report
 // between sessions. ok is false for a window the payload did not include.
 //
 // The nil receiver is valid, so callers can pass an absent window straight in.
