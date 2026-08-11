@@ -45,6 +45,19 @@ usagely &
 Requires a Claude Pro or Max subscription — `rate_limits` is absent otherwise,
 and the tray will say so rather than showing a made-up zero.
 
+## When the numbers look wrong
+
+`usagely status` prints what the tray is showing and when it was captured. To
+compare that against what Claude Code actually sent, keep a copy of the raw
+payload:
+
+```sh
+touch ~/.cache/usagely.json.debug    # then read ~/.cache/usagely.json.payload
+rm ~/.cache/usagely.json.debug       # to stop
+```
+
+The flag file is checked on every status line refresh, so no restart is needed.
+
 ## Layout
 
 ```
