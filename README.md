@@ -72,7 +72,7 @@ usagely &
 ### Upgrade
 
 ```sh
-usagely upgrade     # re-runs go install ...@latest, then restart the tray
+usagely upgrade
 ```
 
 It needs the Go toolchain, same as installing did. If you built from source into

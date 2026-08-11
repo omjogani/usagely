@@ -7,7 +7,6 @@ import (
 	"github.com/omjogani/usagely/internal/tray"
 )
 
-// Main dispatches os.Args and is the whole of the binary at the repo root.
 func Main() {
 	command := ""
 	if len(os.Args) > 1 {
