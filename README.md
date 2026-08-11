@@ -39,12 +39,12 @@ flowchart LR
 
 ## Install
 
-Requires a Claude Pro or Max subscription — `rate_limits` is absent otherwise,
+Requires a Claude Pro or Max subscription - `rate_limits` is absent otherwise,
 and the tray will say so rather than showing a made-up zero.
 
 ### Install the released binary
 
-No clone, no source tree — Go fetches and builds it for you:
+No clone, no source tree - Go fetches and builds it for you:
 
 ```sh
 go install github.com/omjogani/usagely/cmd/usagely@latest
@@ -69,7 +69,7 @@ usagely &
 
 `usagely uninstall` reverses both, restoring your original status line.
 
-## Debug — when the numbers look wrong
+## Debug - when the numbers look wrong
 
 `usagely status` prints what the tray is showing and when it was captured. To
 compare that against what Claude Code actually sent, keep a copy of the raw
@@ -87,8 +87,8 @@ The flag file is checked on every status line refresh, so no restart is needed.
 The tray uses [StatusNotifierItem](https://www.freedesktop.org/wiki/Specifications/StatusNotifierItem/)
 over D-Bus, so it works on KDE, XFCE, Cinnamon, Budgie, COSMIC and most Wayland
 bars with no extra libraries. GNOME has no tray of its own and needs the
-[AppIndicator extension](https://extensions.gnome.org/extension/615/appindicator-support/)
-— Ubuntu and Pop!_OS ship it enabled already.
+[AppIndicator extension](https://extensions.gnome.org/extension/615/appindicator-support/).
+Ubuntu and Pop!_OS ship it enabled already.
 
 ## Limits
 

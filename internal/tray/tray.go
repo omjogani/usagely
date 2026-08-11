@@ -30,7 +30,7 @@ func onReady() {
 	refreshItem := systray.AddMenuItem("Refresh", "Re-read the latest captured usage")
 	quit := systray.AddMenuItem("Quit", "Stop Usagely")
 
-	systray.SetTooltip("Usagely — Claude Code usage")
+	systray.SetTooltip("Usagely - Claude Code usage")
 	refreshFromCache(items, time.Now())
 
 	go func() {

@@ -12,8 +12,8 @@ func usage() string {
 		"  " + cyan("hook       ") + " capture usage from status line JSON on stdin\n" +
 		"              " + faint("--wrap CMD   run CMD with the same payload afterwards") + "\n\n" +
 		faint(`Claude Code runs "usagely hook" as your status line. It writes the rate limits
-to ~/.cache/usagely.json and the tray reads them back — no credentials, no
+to ~/.cache/usagely.json and the tray reads them back - no credentials, no
 network. Requires a Claude Pro or Max subscription.`) + "\n\n" +
 		yellow("★") + " Saved you a trip to /usage? " +
-		cyan("https://github.com/omjogani/Usagely") + faint(" — a star keeps it going") + "\n"
+		cyan("https://github.com/omjogani/Usagely") + faint(" - a star keeps it going") + "\n"
 }

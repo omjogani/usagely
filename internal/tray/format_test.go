@@ -39,7 +39,7 @@ func TestHumanDur(t *testing.T) {
 }
 
 // Rows must come out the same estimated width whether their left side is text
-// or block characters — padding by character count is exactly what does not
+// or block characters - padding by character count is exactly what does not
 // work here, so this guards against regressing to it.
 func TestAlignEqualisesRowWidth(t *testing.T) {
 	for _, pair := range [][2]string{
