@@ -58,6 +58,56 @@ If you would rather it never read the file at all, `usagely hook` on its own is
 the original offline setup: delete nothing, just know the tray goes stale
 between sessions.
 
+## Cache warmth - the other way you lose tokens
+
+Every Claude Code session keeps a server-side prompt cache with a one-hour TTL.
+While it is warm, resending your conversation costs **0.1x** the input price.
+Once it lapses, the next message rewrites the whole context at **2x** - a
+twentyfold jump, charged against the same 5-hour window the tray is watching.
+On a large session that is hundreds of thousands of tokens for typing "carry on".
+
+The tray grows a `Prompt cache` section listing what is still warm, soonest to
+expire first, with a coloured dot that goes amber then red as the window closes.
+Hovering a row gives the exact token count and what to do about it. With nothing
+warm the section hides itself and the menu looks exactly as it did before.
+
+```
+Claude Code
+─────────────────────────────────────────────
+5-Hour   ███░░░░░░░   29%   resets in 2h 33m
+7-Day    █░░░░░░░░░    9%   resets in 1d 0h
+─────────────────────────────────────────────
+Prompt cache
+shapehill                        40k · 59m
+Usagely                         192k · 59m
+─────────────────────────────────────────────
+Updated 00:06
+```
+
+For the full list, including the exact counts:
+
+```sh
+usagely sessions
+```
+
+```
+Claude Code prompt caches
+────────────────────────────────────────────
+running  Usagely                        59m left 170,600 cached
+closed   shapehill                       8m left 197,771 cached
+────────────────────────────────────────────
+```
+
+Ten minutes before a cache lapses, the tray sends a desktop notification naming
+the project and what is at stake. Closed sessions are included on purpose: the
+cache lives on Anthropic's side, keyed by the conversation prefix rather than by
+your process, so a session you quit an hour ago is still warm and still worth
+resuming. Caches under 20,000 tokens are ignored - re-warming those is noise.
+
+Nothing here is guesswork. Claude Code records the cached prefix size and which
+TTL bucket it used in each turn of `~/.claude/projects/*/*.jsonl`, so both the
+countdown and the token figure are read rather than estimated.
+
 ## Install
 
 Requires a Claude Pro or Max subscription - `rate_limits` is absent otherwise,
@@ -129,3 +179,7 @@ Ubuntu and Pop!_OS ship it enabled already.
 - No per-model rows yet. The usage endpoint does report `seven_day_opus` and
   `seven_day_sonnet`; the tray does not draw them.
 - Linux only. The tray is StatusNotifierItem over D-Bus.
+- The cache countdown starts from a session's last message. If Anthropic extends
+  a cache's TTL each time it is read, that is exactly right; if the clock instead
+  runs from the first write, the countdown is optimistic and the real warning
+  should come sooner.
