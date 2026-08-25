@@ -20,6 +20,8 @@ func Main() {
 		runHook(os.Args[2:])
 	case "status":
 		exit(runStatus())
+	case "sessions":
+		exit(runSessions())
 	case "install":
 		exit(runInstall())
 	case "uninstall":

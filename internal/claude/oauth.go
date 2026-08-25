@@ -13,15 +13,23 @@ import (
 
 const usageURL = "https://api.anthropic.com/api/oauth/usage"
 
-func CredentialsPath() string {
+func configDir() string {
 	if dir := os.Getenv("CLAUDE_CONFIG_DIR"); dir != "" {
-		return filepath.Join(dir, ".credentials.json")
+		return dir
 	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return ""
 	}
-	return filepath.Join(home, ".claude", ".credentials.json")
+	return filepath.Join(home, ".claude")
+}
+
+func CredentialsPath() string {
+	dir := configDir()
+	if dir == "" {
+		return ""
+	}
+	return filepath.Join(dir, ".credentials.json")
 }
 
 func accessToken(now time.Time) (string, error) {

@@ -27,6 +27,8 @@ func onReady() {
 	items[rowFiveBar] = addDisabled("")
 	items[rowSevenLabel] = addDisabled("7-Day")
 	items[rowSevenBar] = addDisabled("")
+	caches := newCacheSection()
+
 	systray.AddSeparator()
 	items[rowUpdated] = addDisabled("")
 
@@ -34,7 +36,13 @@ func onReady() {
 	quit := systray.AddMenuItem("Quit", "Stop Usagely")
 
 	systray.SetTooltip("Usagely - Claude Code usage")
-	refreshFromCache(items, time.Now())
+	redraw := func(now time.Time) {
+		refreshFromCache(items, now)
+		caches.refresh(now)
+	}
+	redraw(time.Now())
+
+	warnings := newWarner()
 
 	go func() {
 		ticker := time.NewTicker(refreshInterval)
@@ -42,15 +50,17 @@ func onReady() {
 		defer ticker.Stop()
 		defer poll.Stop()
 
-		fetchAndRefresh(items)
+		fetchAndRefresh(items, redraw)
+		warnings.check(time.Now())
 		for {
 			select {
 			case <-ticker.C:
-				refreshFromCache(items, time.Now())
+				redraw(time.Now())
 			case <-poll.C:
-				fetchAndRefresh(items)
+				fetchAndRefresh(items, redraw)
+				warnings.check(time.Now())
 			case <-refreshItem.ClickedCh:
-				fetchAndRefresh(items)
+				fetchAndRefresh(items, redraw)
 			case <-quit.ClickedCh:
 				systray.Quit()
 				return
@@ -59,11 +69,11 @@ func onReady() {
 	}()
 }
 
-func fetchAndRefresh(items [rowCount]*systray.MenuItem) {
+func fetchAndRefresh(items [rowCount]*systray.MenuItem, redraw func(time.Time)) {
 	if snapshot, err := claude.Fetch(time.Now()); err == nil {
 		_ = claude.Write(snapshot)
 	}
-	refreshFromCache(items, time.Now())
+	redraw(time.Now())
 }
 
 func addDisabled(title string) *systray.MenuItem {
