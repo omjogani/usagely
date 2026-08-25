@@ -10,7 +10,10 @@ import (
 	"github.com/omjogani/usagely/internal/claude"
 )
 
-const refreshInterval = 10 * time.Second
+const (
+	refreshInterval = 10 * time.Second
+	pollInterval    = time.Minute
+)
 
 func Run() {
 	systray.Run(onReady, func() {})
@@ -27,7 +30,7 @@ func onReady() {
 	systray.AddSeparator()
 	items[rowUpdated] = addDisabled("")
 
-	refreshItem := systray.AddMenuItem("Refresh", "Re-read the latest captured usage")
+	refreshItem := systray.AddMenuItem("Refresh", "Fetch the latest usage now")
 	quit := systray.AddMenuItem("Quit", "Stop Usagely")
 
 	systray.SetTooltip("Usagely - Claude Code usage")
@@ -35,19 +38,32 @@ func onReady() {
 
 	go func() {
 		ticker := time.NewTicker(refreshInterval)
+		poll := time.NewTicker(pollInterval)
 		defer ticker.Stop()
+		defer poll.Stop()
+
+		fetchAndRefresh(items)
 		for {
 			select {
 			case <-ticker.C:
 				refreshFromCache(items, time.Now())
+			case <-poll.C:
+				fetchAndRefresh(items)
 			case <-refreshItem.ClickedCh:
-				refreshFromCache(items, time.Now())
+				fetchAndRefresh(items)
 			case <-quit.ClickedCh:
 				systray.Quit()
 				return
 			}
 		}
 	}()
+}
+
+func fetchAndRefresh(items [rowCount]*systray.MenuItem) {
+	if snapshot, err := claude.Fetch(time.Now()); err == nil {
+		_ = claude.Write(snapshot)
+	}
+	refreshFromCache(items, time.Now())
 }
 
 func addDisabled(title string) *systray.MenuItem {

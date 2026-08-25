@@ -12,30 +12,51 @@ Updated 11:06
 Quit
 ```
 
-## No credentials, no network
+## Read-only, never refreshed
 
-Usagely never reads your Claude credentials and never makes an API call.
+Usagely reads your Claude Code login. It never writes it.
 
-Claude Code passes `rate_limits` to whatever command you configure as its
+Two sources feed the tray, and neither can log you out.
+
+**The status line hook, free and offline.** Claude Code passes `rate_limits` to
+whatever command you configure as its
 [status line](https://code.claude.com/docs/en/statusline). `usagely hook` sits
 in that slot, writes the numbers to `~/.cache/usagely.json`, and passes stdin
-straight through to the status line you already had. The tray reads that file.
+straight through to the status line you already had.
 
-```
-statusline hook  →  ~/.cache/usagely.json  →  tray
-```
-
-This matters: Anthropic's OAuth refresh tokens are single-use and rotating, so
-tools that read `~/.claude/.credentials.json` and refresh it can log you out of
-Claude Code. Usagely can't, because it never touches them.
+**The usage endpoint, for when Claude Code is closed.** The hook only fires
+while a session is running, so the tray used to go blind the moment you quit -
+and it never saw usage from your other machines or from claude.ai at all. Once a
+minute the tray reads the OAuth access token out of
+`~/.claude/.credentials.json` and asks `api.anthropic.com/api/oauth/usage` for
+the account's live windows. That is the same endpoint Claude Code's own `/usage`
+command reads.
 
 ```mermaid
 flowchart LR
     CC["Claude Code"] -- "JSON on stdin<br/>(rate_limits)" --> H["usagely hook"]
     H -- "same bytes, unchanged" --> SL["your own<br/>status line"]
     H -- "writes" --> C[("~/.cache/usagely.json")]
+    A["api.anthropic.com<br/>/api/oauth/usage"] -- "read every 60s" --> C
+    K[(".claude/.credentials.json")] -. "access token, read-only" .-> A
     C -- "read every 10s" --> T["tray indicator"]
 ```
+
+### Why it cannot log you out
+
+Anthropic's OAuth refresh tokens are single-use and rotating. A tool that
+spends yours races Claude Code for it, and the loser gets logged out. Plenty of
+usage monitors do exactly that.
+
+Usagely never spends the refresh token, and never writes the credentials file.
+It sends the access token Claude Code already minted, and nothing else. When
+that token expires - roughly eight hours after Claude Code last ran - the fetch
+simply fails and the tray keeps showing the last snapshot with its capture time.
+Start Claude Code and the next poll picks up the renewed token on its own.
+
+If you would rather it never read the file at all, `usagely hook` on its own is
+the original offline setup: delete nothing, just know the tray goes stale
+between sessions.
 
 ## Install
 
@@ -102,7 +123,9 @@ Ubuntu and Pop!_OS ship it enabled already.
 
 ## Limits
 
-- Only counts usage from this machine. claude.ai in a browser won't show up.
-- Percentages refresh while Claude Code is running. Between sessions the
-  countdown keeps ticking and each window reads zero once it resets.
-- No per-model rows. The status line reports `five_hour` and `seven_day` only.
+- The tray goes stale if Claude Code has not run in about eight hours, which is
+  when its access token expires. `usagely status` always shows the capture time,
+  so a stale reading never passes for a fresh one.
+- No per-model rows yet. The usage endpoint does report `seven_day_opus` and
+  `seven_day_sonnet`; the tray does not draw them.
+- Linux only. The tray is StatusNotifierItem over D-Bus.
